@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<head>
+    <meta charset="utf-8">
+    <title>Event Booking page - Welcome and choose an Event</title>
+    <style type="text/css">
+        body {
+            width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Welcome to our Event Booking App</h1>
+</header>
+<main>
+    <div th:each="event : ${events}">
+        <form action="" method="POST">
+            Name: <span th:text="${event.name}"></span><br/>
+            Description: <span th:text="${event.description}"></span><br/>
+            Rating: <span th:text="${event.popularityScore}"></span><br/>
+            Location: <span th:text="${event.location.name}"></span><br/>
+        </form>
+
+        <!-- Show the edit button only if the user has ADMIN role -->
+        <form method="GET" th:action="@{/events/edit/{eventId}(eventId=${event.id})}" sec:authorize="hasRole('ADMIN')">
+            <input type="submit" value="Edit">
+        </form>
+
+        <!-- Show the delete button only if the user has ADMIN role -->
+        <form method="POST" sec:authorize="hasRole('ADMIN')" th:action="@{/events/delete/{eventId}(eventId=${event.id})}">
+            <input type="submit" value="Delete">
+        </form>
+    </div>
+
+    <!-- Add event button: visible only to admins -->
+    <form action="/events/add" method="GET" style="margin-top: 10px" >
+        <h3>If you want to add an Event, click the button</h3>
+        <input type="submit" sec:authorize="hasRole('ADMIN')">
+    </form>
+
+    <!-- General forms accessible to all users -->
+    <form action="/eventsByLocation" method="GET">
+        <h2>Search events by location:</h2>
+        <select name="locationId">
+            <option value="7" selected>not specified</option>
+            <option th:each="event : ${events}" th:value="|${event.getLocationId()}|" th:text="${event.location.name}"></option>
+        </select>
+        <input type="submit" value="search">
+    </form>
+
+
+</main>
+</body>
+</html>
